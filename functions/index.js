@@ -1,4 +1,4 @@
-export async function onRequest(context) {
+export default async function onRequest(context) {
   // 从环境变量中读取 DISABLE_PAGE 的值
   const isPageDisabled = context.env.DISABLE_PAGE === 'true';
 
