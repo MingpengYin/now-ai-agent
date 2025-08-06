@@ -1,82 +1,104 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ServiceNow AI Agent Demo</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #f0f2f5;
+    <title>分钟数状态控制示例</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#165DFF',
+                        success: '#36D399',
+                        error: '#F87272'
+                    },
+                    fontFamily: {
+                        inter: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
         }
-        .container {
-            text-align: center;
-            background-color: white;
-            padding: 2rem 4rem;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .logo {
-            width: 200px;
-            margin-bottom: 1.5rem;
-        }
-        .demo-text {
-            font-size: 1.5rem;
-            color: #00396b;
-            margin-bottom: 1.5rem;
-            font-weight: 600;
-        }
-        .datetime {
-            font-size: 1.2rem;
-            color: #555;
-            padding: 0.5rem 1rem;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .content-auto {
+                content-visibility: auto;
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <!-- ServiceNow Logo -->
+<body class="font-inter bg-gray-50 min-h-screen flex flex-col">
+    <header class="bg-white shadow-sm py-4 px-6">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-gray-800">
+                <i class="fa fa-clock-o text-primary mr-2"></i>分钟数状态控制器
+            </h1>
+            <div id="current-time" class="text-gray-600"></div>
+        </div>
+    </header>
+
+    <main class="flex-grow container mx-auto px-6 py-12">
+        <div class="max-w-2xl mx-auto text-center">
+            <div class="bg-white rounded-xl shadow-md p-8 mb-8 transform transition-all duration-300 hover:shadow-lg">
         <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSh-vN1hvWnizYtiM9ZGotD6Uz6YTgcgG0VqtAsJvdHcKjBtAao7Z9CKAY&s" 
              alt="ServiceNow Logo" class="logo">
-        
-        <!-- AI Agent Demo Description (English) -->
-        <p class="demo-text">This is an AI Agent Demo</p>
-        <p class="demo-text">From Team11 Yin Mingpeng</p>
-        
-        <!-- Current Date and Time -->
-        <div class="datetime" id="currentDateTime"></div>
-    </div>
+                <h2 class="text-3xl font-bold mb-4 text-primary">页面当前可用</h2>
+                <p class="text-gray-600 mb-6">
+                    现在是<span class="font-semibold" id="minute-type">奇数</span>分钟，页面正常显示
+                </p>
+                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-success/10 text-success mb-4">
+                    <i class="fa fa-check text-2xl"></i>
+                </div>
+                <p class="text-gray-500 text-sm">
+                    状态将在<span id="next-change" class="font-medium text-primary">下一分钟</span>变更
+                </p>
+            </div>
+            
+            <div class="bg-gray-100 rounded-lg p-4 text-sm text-gray-600">
+                <p><i class="fa fa-info-circle text-primary mr-1"></i> 系统规则：奇数分钟页面正常显示（200），偶数分钟返回404错误</p>
+		<p>From Team11 Yin Mingpeng</p>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="bg-gray-800 text-white py-6 px-6">
+        <div class="container mx-auto text-center text-gray-400 text-sm">
+            <p>基于Cloudflare Pages构建 | 分钟数状态控制示例</p>
+        </div>
+    </footer>
 
     <script>
-        // Function to update date and time
-        function updateDateTime() {
+        // 更新当前时间显示
+        function updateTime() {
             const now = new Date();
-            // Format options for clear readability
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: true
-            };
-            const formattedDateTime = now.toLocaleString('en-US', options);
-            document.getElementById('currentDateTime').textContent = formattedDateTime;
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            document.getElementById('current-time').textContent = 
+                `${hours}:${minutes}:${seconds}`;
+            
+            // 计算下一次状态变更时间
+            const nextMinute = (now.getMinutes() + 1) % 60;
+            document.getElementById('next-change').textContent = 
+                `${hours}:${String(nextMinute).padStart(2, '0')}:00`;
+                
+            // 更新分钟类型显示
+            document.getElementById('minute-type').textContent = 
+                now.getMinutes() % 2 === 1 ? '奇数' : '偶数';
         }
-
-        // Initial update and set interval for real-time display
-        updateDateTime();
-        setInterval(updateDateTime, 1000);
+        
+        // 初始化并每秒更新时间
+        updateTime();
+        setInterval(updateTime, 1000);
     </script>
 </body>
 </html>
+    
