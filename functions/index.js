@@ -1,13 +1,12 @@
-export default async function onRequest(context) {
+export async function onRequest(context) {
   // 从环境变量中读取 DISABLE_PAGE 的值
   const isPageDisabled = context.env.DISABLE_PAGE === 'true';
 
-  // 如果页面被禁用
   if (isPageDisabled) {
-    // 返回 404 Not Found 响应
+    // 如果页面被禁用，返回 404
     return new Response('404 Not Found', { status: 404 });
   }
 
-  // 如果页面没有被禁用，则正常处理请求，返回 index.html
+  // 否则，让 Pages 返回 index.html
   return context.next();
 }
