@@ -2,6 +2,7 @@ addEventListener('fetch', (event) => {
   event.respondWith(handleRequest(event));
 });
 
+
 async function handleRequest(event) {
   // 从环境变量取配置（注意： Workers 中通过 event.env 或单独的 env 对象获取，需确认绑定）
   const isPageDisabled = event.env.DISABLE_PAGE === 'true';
